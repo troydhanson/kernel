@@ -1,7 +1,10 @@
 The "chardev" module registers a character device driver.
-You can set its major/minor number as module parameters.
 
-  % insmod chardev.ko major=1234 minor=1
+  % insmod chardev.ko 
+
+These days drivers like chardev dynamically get a major.
+After the driver is loaded, its major and minor numbers
+are exposed in /sys/devices (and also in /proc/devices).
 
 Then you can make a device node that uses this driver. 
 
