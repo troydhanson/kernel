@@ -17,6 +17,14 @@ struct chardev_t {
   struct cdev cdev; /* has our ops, owner, etc */
 } c;
 
+struct file_operations ops = {
+  .read = NULL,
+  .write = NULL,
+  .unlocked_ioctl = NULL,
+  .open = NULL,
+  .release = NULL
+};
+
 int __init chardev_init(void) {
   int rc;
 
@@ -28,7 +36,7 @@ int __init chardev_init(void) {
   }
 
   /* init the struct cdev */
-  cdev_init(&c.cdev, NULL/*&ops*/);
+  cdev_init(&c.cdev, &ops);
   c.cdev.owner = THIS_MODULE;
 
   /* make device live */
