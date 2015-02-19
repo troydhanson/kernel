@@ -17,11 +17,27 @@ struct chardev_t {
   struct cdev cdev; /* has our ops, owner, etc */
 } c;
 
+static int _open(struct inode *inode, struct file *filp) {
+  void *per_fd_state = NULL;
+  /* we can store away some per fd state here. */
+  filp->private_data = per_fd_state;
+  /* we can access the rw and blocking mode */
+  printk(KERN_DEBUG "open for %c%c\n", ((filp->f_mode & FMODE_READ) ? 'r':'-'),
+                                      ((filp->f_mode & FMODE_WRITE) ? 'w':'-'));
+  return 0;
+}
+
+/* kernel calls release when fd usage count reaches 0. e.g. if a process opens
+ * a device, forks, fd usage count is now two; when both close, its released. */
+static int _release(struct inode *inode, struct file *filp) {
+  return 0;
+}
+
 struct file_operations ops = {
   .read = NULL,
   .write = NULL,
   .unlocked_ioctl = NULL,
-  .open = NULL,
+  .open = _open,
   .release = NULL
 };
 
