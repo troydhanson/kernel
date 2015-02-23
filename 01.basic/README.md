@@ -14,12 +14,12 @@ The kernel headers are the bits required to build and link a kernel module (.ko)
 On Debian derivates like Ubuntu and Mint, you can check if the kernel headers are
 installed using the first command below and install it using the second command:
 
-  % dpkg-query -s linux-headers-$(uname -r)
-  % sudo apt-get install linux-headers-$(uname -r)
+    % dpkg-query -s linux-headers-$(uname -r)
+    % sudo apt-get install linux-headers-$(uname -r)
 
 Set an environment variable to the installed kernel headers:
 
-  % KERNELHEADERS=/lib/modules/$(uname -r)/build/
+    % KERNELHEADERS=/lib/modules/$(uname -r)/build/
 
 Note that $(uname -r) expands to the kernel version. E.g., 3.13.0-24-generic.
 
@@ -27,26 +27,27 @@ Build
 -----
 To build the module:
 
-  % make -C ${KERNELHEADERS} SUBDIRS=$PWD modules
+    % make -C ${KERNELHEADERS} SUBDIRS=$PWD modules
 
-There are also make targets you can use including "clean" and "modules_install".
+To simplify matters there is a script wrapper:
+
+    % ./build.sh
 
 Try
 ---
 To load the module:
 
-  % sudo insmod basic.ko
+    % sudo insmod basic.ko
 
 To unload the module:
 
-  % sudo rmmod basic
+    % sudo rmmod basic
 
 See the artifacts:
 
-  % dmesg | tail -1
+    % dmesg | tail -1
 
 Produces:
 
-  [65919.113771] basic module exit called
-
+    [65919.113771] basic module exit called
 
