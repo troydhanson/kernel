@@ -20,6 +20,7 @@ Read from it:
 
 This driver returns 100 bytes max. The last dd only reads 100 bytes.
 
-Delete the device node:
+Clean up:
 
   % rm dev
+  % sudo rmmod chardev_ops

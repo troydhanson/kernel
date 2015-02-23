@@ -17,6 +17,7 @@ Then you can make a device node that uses this driver.
 crw-r--r-- 1 root root 250, 0 Feb 18 09:30 dev
 
 This driver has no "ops" yet, so it can't be used
-for anything (e.g. "cat dev" fails). Delete the node:
+for anything (e.g. "cat dev" fails). Clean up:
 
   % rm dev
+  % sudo rmmod chardev

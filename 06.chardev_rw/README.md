@@ -19,6 +19,7 @@ Try the Python helper script to write and read from it:
   % sudo ./rw.py
   5
 
-Delete the device node:
+Clean up:
 
   % rm dev
+  % sudo rmmod chardev_rw
