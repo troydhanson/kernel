@@ -21,7 +21,7 @@ count: 15
 ```
 
 Notice that the third count remained at 10. This is
-because we had toggled the driver mode sing our ioctl.
+because we had toggled the driver mode with our ioctl.
 
 Clean up:
 
