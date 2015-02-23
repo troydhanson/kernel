@@ -7,3 +7,8 @@
 #
 
 obj-m := chardev_ioctl.o
+
+rig: rig.c
+
+clean:
+	rm -f rig

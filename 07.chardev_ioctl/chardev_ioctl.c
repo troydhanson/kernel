@@ -57,12 +57,13 @@ ssize_t _read(struct file *f, char __user *buf, size_t count, loff_t *offp) {
 ssize_t _write(struct file *f, const char __user *buf, size_t count, 
                loff_t *offp) {
   struct fd_state *s = (struct fd_state*)f->private_data;
-  s->bytes_sunk += count;
+  if (s->counting) s->bytes_sunk += count;
   *offp += count;
   return count;
 }
 
 long _ioctl(struct file *f, unsigned int cmd, unsigned long arg) {
+  struct fd_state *s = (struct fd_state*)f->private_data;
   long rc = -ENOTTY;
 
   if (_IOC_TYPE(cmd) != FOO_MAGIC) goto done; /* wrong ioctl for device */
@@ -70,7 +71,7 @@ long _ioctl(struct file *f, unsigned int cmd, unsigned long arg) {
 
   switch (cmd) {
     case FOO_IOCTL_TOGGLE:
-      /* TODO toggle */
+      s->counting = s->counting ? 0 : 1;
       break;
     default:
       goto done;
