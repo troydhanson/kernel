@@ -25,8 +25,6 @@ because we had toggled the driver mode sing our ioctl.
 
 Clean up:
 
-```
-  % rm dev
-  % sudo rmmod chardev_ioctl
-  % ./build.sh clean
-```
+    % rm dev
+    % sudo rmmod chardev_ioctl
+    % ./build.sh clean
