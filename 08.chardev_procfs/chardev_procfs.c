@@ -1,14 +1,11 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
-#include <linux/ioctl.h>
 #include <asm/uaccess.h>
 #include <linux/cdev.h>
 #include <linux/slab.h>
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/proc_fs.h>
-
-#include "chardev_procfs.h"
 
 /* module information */
 MODULE_AUTHOR("Troy D. Hanson");
@@ -28,75 +25,7 @@ struct chardev_t {
 
 } c;
 
-struct fd_state {
-  long bytes_sunk; /* count of bytes written to fd */
-  int counting;    /* 1 if we're in counting mode */
-};
-
-/* keep a count of bytes "sunk" (written) to this fd. */
-int _open(struct inode *inode, struct file *f) {
-  struct fd_state *s = (struct fd_state*)kmalloc(sizeof(*s), GFP_KERNEL);
-  if (s==NULL) return -ENOMEM;
-  s->bytes_sunk = 0;
-  s->counting = 1;
-  f->private_data = s;
-  return 0;
-}
-
-int _release(struct inode *inode, struct file *f) {
-  struct fd_state *s = (struct fd_state*)f->private_data;
-  printk(KERN_DEBUG "sunk %lu bytes @ close\n", s->bytes_sunk);
-  kfree(f->private_data);
-  return 0;
-}
-
-/* return the number of bytes (as a long) ever written to this fd */
-ssize_t _read(struct file *f, char __user *buf, size_t count, loff_t *offp) {
-  struct fd_state *s = (struct fd_state*)f->private_data;
-  if (count < sizeof(long)) return -EINVAL;
-  if (copy_to_user(buf, &s->bytes_sunk, sizeof(long))) return -EFAULT;
-  *offp += sizeof(long);
-  return sizeof(long);
-}
-
-/* we simply add the byte count to the tally for this fd */
-ssize_t _write(struct file *f, const char __user *buf, size_t count, 
-               loff_t *offp) {
-  struct fd_state *s = (struct fd_state*)f->private_data;
-  if (s->counting) s->bytes_sunk += count;
-  *offp += count;
-  return count;
-}
-
-long _ioctl(struct file *f, unsigned int cmd, unsigned long arg) {
-  struct fd_state *s = (struct fd_state*)f->private_data;
-  long rc = -ENOTTY;
-
-  if (_IOC_TYPE(cmd) != FOO_MAGIC) goto done; /* wrong ioctl for device */
-  if (_IOC_NR(cmd) > FOO_NR) goto done;       /* ioctl is not supported */
-
-  switch (cmd) {
-    case FOO_IOCTL_TOGGLE:
-      s->counting = s->counting ? 0 : 1;
-      break;
-    default:
-      goto done;
-      break;
-  }
-
-  rc = 0;
-
- done:
-  return rc;
-}
-
-struct file_operations ops = {
-  .read = _read,
-  .write = _write,
-  .unlocked_ioctl = _ioctl,
-  .open = _open,
-  .release = _release
-};
+struct file_operations ops;
 
 /******************************************************************************
  * procfs plumbing here 
@@ -109,6 +38,7 @@ int proc_open(struct inode *inode, struct file *f) {
   *len = c.procfs_buf_len; /* we need to write this much data */
   return 0;
 }
+
 /* this is invoked when userspace reads /proc/chardev_procfs. */
 ssize_t proc_read(struct file *f, char __user *buf, size_t count, loff_t *offp) {
   unsigned long *len = (unsigned long*)&f->private_data;
@@ -119,6 +49,7 @@ ssize_t proc_read(struct file *f, char __user *buf, size_t count, loff_t *offp) 
   *len = 0;
   return c.procfs_buf_len;
 }
+
 /* file ops for our procfs entry */
 struct file_operations procfs_ops = {
   .read = proc_read,
