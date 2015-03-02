@@ -1,6 +1,9 @@
 This is a more fun variation of 01.get_free_page. This one keeps the
 page inside the driver global state, in other words, one process
-can write to it, and another process can read from it. 
+can write to it, and another process can read the buffer out. 
+
+Since multiple processes may try to read or write the device at once,
+this version adds the use of a mutex to lock the driver's page buffer.
 
 ```
     % ./build.sh 

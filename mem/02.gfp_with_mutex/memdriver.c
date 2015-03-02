@@ -14,13 +14,14 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define NUM_MINORS 1
 
+DEFINE_MUTEX(mutex);
+
 /* a global to keep state. must be thread safe. */
 struct chardev_t {
   dev_t dev;        /* has major and minor bits */
   struct cdev cdev; /* has our ops, owner, etc */
 
   /* we have a single buffer shared by all users */
-  spinlock_t lock;     // TODO declare this right
   unsigned long page;  // virtual address of page
   size_t bytes_available;  // bytes available to read 
 } c;
@@ -34,22 +35,44 @@ int _release(struct inode *inode, struct file *f) {
 }
 
 ssize_t _read(struct file *f, char __user *buf, size_t count, loff_t *offp) {
-  // XXX spinlock
-  size_t sz = (count > c.bytes_available) ? c.bytes_available : count;
-  if (copy_to_user(buf, (void*)c.page, sz)) return -EFAULT;
+  ssize_t rc = -EFAULT, sz;
+  unsigned long mc;
+
+  /* in linux you are allowed to sleep while holding a mutex.
+     copy_to_user may sleep if the page needs to be brought in */
+  mutex_lock(&mutex);
+  sz = (count > c.bytes_available) ? c.bytes_available : count;
+  mc = copy_to_user(buf, (void*)c.page, sz);
+  if (mc == 0) c.bytes_available -= sz;
+  mutex_unlock(&mutex);
+
+  if (mc) goto done;
+
   *offp += sz;
-  c.bytes_available -= sz;
-  return sz;
+  rc = sz;
+
+ done:
+  return rc;
 }
 
 ssize_t _write(struct file *f, const char __user *buf, size_t count, 
                loff_t *offp) {
-  // XXX spinlock
-  size_t sz = (count > PAGE_SIZE) ? PAGE_SIZE : count;
-  if (copy_from_user((void*)c.page, buf, sz)) return -EFAULT;
+  ssize_t rc = -EFAULT, sz;
+  unsigned long mc;
+
+  mutex_lock(&mutex);
+  sz = (count > PAGE_SIZE) ? PAGE_SIZE : count;
+  mc = copy_from_user((void*)c.page, buf, sz);
+  if (mc == 0) c.bytes_available = sz;
+  mutex_unlock(&mutex);
+
+  if (mc) goto done;
+
   *offp += sz;
-  c.bytes_available = sz;
-  return sz;
+  rc = sz;
+
+ done:
+  return rc;
 }
 
 struct file_operations ops = {
