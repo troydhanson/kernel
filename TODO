@@ -2,4 +2,5 @@ IRQ's
 timers
 remap_pfn_range
 get_user_pages
+udev device instantiation
 
