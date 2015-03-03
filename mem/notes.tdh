@@ -13,13 +13,13 @@ kmalloc(size, flags):
     memory is contiguous in physical memory
     GFP_KERNEL (process context; can sleep)
     GFP_ATOMIC (do not sleep)
-    GFP_USER (memory for user space pages)
+    GFP_USER (obsolete)
     ...
 
 Requesting whole pages
     get_zeroed_page (clears it)
     __get_free_page (does not clear)
-    __get_free_pages (multiple phyiscally contiguous, not cleared, pages)
+    __get_free_pages (multiple physically contiguous, not cleared, pages)
 
 VIRTUALLY contiguous memory
 ---------------------------

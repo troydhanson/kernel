@@ -6,9 +6,10 @@ These examples all implement a character driver as a loadable kernel module.
 TODO
 
 * IRQ's
-* timers
+* timers, jiffies, HZ
 * remap_pfn_range
 * get_user_pages
 * vm_insert_page
 * udev device instantiation
-
+* GPL_EXPORT_SYMBOLS, /proc/kallsyms
+* ops: poll, mmap
