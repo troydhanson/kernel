@@ -13,7 +13,7 @@ int main(int argc, char * argv[]) {
   char *file = (argc > 1) ? argv[1] : "dev";
   int npages = (argc > 2) ? atoi(argv[2]) : 1;
   int fd,rc=-1;
-  char *buf;
+  char *buf, *b, unused;
   size_t len = 4096 * npages; // FIXME getpagesz
 
   if ( (fd = open(file, O_RDWR)) == -1) {
@@ -28,6 +28,16 @@ int main(int argc, char * argv[]) {
   }
 
   rc = 0;
+
+  /* make the program block so we can examine it */
+
+  fprintf(stderr,"press a key to exercise memory write\n");
+  read(STDIN_FILENO,&unused,sizeof(unused));
+  for(b=buf; b < buf+len; b++) *b=1;
+
+  fprintf(stderr,"press a key to terminate\n");
+  read(STDIN_FILENO,&unused,sizeof(unused));
+
 
  done:
   munmap(buf, len);
