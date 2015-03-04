@@ -22,29 +22,12 @@ struct chardev_t {
   struct cdev cdev; /* has our ops, owner, etc */
 } c;
 
-int _open(struct inode *inode, struct file *f) {
-  return 0;
-}
-
-int _release(struct inode *inode, struct file *f) {
-  return 0;
-}
-
-ssize_t _read(struct file *f, char __user *buf, size_t count, loff_t *offp) {
-  return 0;
-}
-
-ssize_t _write(struct file *f, const char __user *buf, size_t count, 
-               loff_t *offp) {
-  return -EINVAL;
-}
-
 int _mmap(struct file *f, struct vm_area_struct *vma) {
   unsigned long pages = (vma->vm_end - vma->vm_start) >> PAGE_SHIFT;
   unsigned long addr;
   struct page *page;
   int i,rc=-ENODEV;
-  // TODO get semaphore 
+  // TODO need any semaphore for vma manipulation?
   printk(KERN_DEBUG "vma->vm_end %lu vm_start %lu len %lu pages %lu vm_pgoff %lu\n",
     vma->vm_end, vma->vm_start, vma->vm_end - vma->vm_start, pages, vma->vm_pgoff);
   /* allocate and insert pages to fill the vma. */ 
@@ -75,10 +58,6 @@ int _mmap(struct file *f, struct vm_area_struct *vma) {
 }
 
 struct file_operations ops = {
-  .read = _read,
-  .write = _write,
-  .open = _open,
-  .release = _release,
   .mmap = _mmap
 };
 

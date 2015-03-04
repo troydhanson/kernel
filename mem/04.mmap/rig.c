@@ -16,6 +16,8 @@ int main(int argc, char * argv[]) {
   char *buf, *b, unused;
   size_t len = 4096 * npages; // FIXME getpagesz
 
+  fprintf(stderr,"pid: %u\n", (int)getpid());
+
   if ( (fd = open(file, O_RDWR)) == -1) {
       fprintf(stderr,"can't open %s: %s\n", file, strerror(errno));
       goto done;
