@@ -42,10 +42,14 @@ Address           Kbytes     RSS   Dirty Mode  Mapping
 00007fdd3fff0000       4       4       4 rw-s- dev
 ```
 
-As a side note, ps can show the page fault counts incurred by rig.
-A minor fault is a RAM manipulation, which is the kind kex incurs.
+We could also use ps to see the count of minor page faults increase
+when rig accesses the page for the first time using a command like:
 
+```
     % ps -o pid,maj_flt,min_flt -C rig
+  PID  MAJFL  MINFL
+24995      0    195
+```
 
 Clean up:
 
