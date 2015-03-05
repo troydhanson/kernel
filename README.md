@@ -1,7 +1,5 @@
-These examples implement a device driver. The driver is a loadable kernel module.
-It is a character device. Each version of the driver shows usage of a different
-kernel API feature.
-
+These examples demonstrate kernel programming using a loadable module.
+Each version of the module shows how to use a different feature of the kernel.
 
 TODO
 

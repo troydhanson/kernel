@@ -9,10 +9,8 @@ When the rig process tries to read or write one of these pages, the MMU
 looks up the corresponding physical RAM page in the page tables. Seeing
 none it interrupts the kernel to decide how to handle the fault. In the
 VMA kex has registered a fault handler, so the kernel calls it. Now kex
-allocates a page of RAM to satisfy the fault.
-
-The page fault, a transparent, on-demand VMA manipulation, is invisible
-to the userspace application.
+allocates a page of RAM to satisfy the fault.  The page fault, an on-
+demand VMA manipulation, is invisible to the userspace application.
 
 ```
     % ./build.sh
@@ -35,22 +33,19 @@ Address           Kbytes     RSS   Dirty Mode  Mapping
 00007fdd3fff0000       4       0       0 rw-s- dev
 ```
 
-In the rig window, press enter to cause it to write to this page. This
-page fault causes kex to print a debug message, visible in dmesg:
-
-```
-    % dmesg | tail 
-[30718.616879] fault on 00007fdd3fff0000 (userspace:1 write:1)
-```
-
-Now run pmap again. Notice that the page is now resident. It is also
-dirty since rig wrote to the page after it was mapped.
+In the rig window, press enter to cause it to write to this page.
+The page fault occurs as dmesg confirms. The page is now resident. 
 
 ```
     % pmap -x 24995
 Address           Kbytes     RSS   Dirty Mode  Mapping
 00007fdd3fff0000       4       4       4 rw-s- dev
 ```
+
+As a side note, ps can show the page fault counts incurred by rig.
+A minor fault is a RAM manipulation, which is the kind kex incurs.
+
+    % ps -o pid,maj_flt,min_flt -C rig
 
 Clean up:
 
