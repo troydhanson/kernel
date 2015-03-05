@@ -1,7 +1,7 @@
-These examples all implement a character driver as a loadable kernel module.
+These examples implement a device driver. The driver is a loadable kernel module.
+It is a character device. Each version of the driver shows usage of a different
+kernel API feature.
 
-* basic/ shows module initialization, procfs, and r/w and ioctl ops
-* mem/ shows usage of kernel memory allocation
 
 TODO
 
@@ -9,7 +9,9 @@ TODO
 * timers, jiffies, HZ
 * remap_pfn_range
 * get_user_pages
-* vm_insert_page
 * udev device instantiation
 * GPL_EXPORT_SYMBOLS, /proc/kallsyms
 * ops: poll, mmap
+* kernel linked list, kfifo
+* pci, usb
+
