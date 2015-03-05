@@ -14,4 +14,8 @@ TODO
 * ops: poll, mmap
 * kernel linked list, kfifo
 * pci, usb
-
+* kgdb
+* initramfs
+* kvm
+* net nic
+* waitqueues
