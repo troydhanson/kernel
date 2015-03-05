@@ -14,24 +14,38 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define NUM_MINORS 1
 
-DEFINE_MUTEX(mutex);
-
 struct chardev_t {
   dev_t dev;        /* has major and minor bits */
   struct cdev cdev; /* has our ops, owner, etc */
 } c;
 
-static 
-struct page *fault(struct vm_area_struct *vma, unsigned long addr, int *type) {
-  struct page *page=NULL;
-  //get_page();
-  if (type) *type=VM_FAULT_MINOR;
-  return page;
+int kex_fault(struct vm_area_struct *vma, struct vm_fault *vmf) {
+  int flags = 0; /* VM_FAULT_MINOR. see mm.h */
+
+  printk(KERN_DEBUG "fault on %p (userspace:%d write:%d)\n", 
+    (void*)vmf->virtual_address,
+    (vmf->flags & FAULT_FLAG_USER)  ? 1:0,
+    (vmf->flags & FAULT_FLAG_WRITE) ? 1:0);
+
+  vmf->page = alloc_page(GFP_KERNEL);
+  if (!vmf->page) { 
+    flags = VM_FAULT_OOM; 
+    goto done; 
+  }
+
+  // XXX
+  //get_page() not needed; -- alloc_page already took a reference
+  //@unmap does __free_page - that should drop refcount to 0
+
+ done:
+  return flags; // VM_FAULT_MINOR
 }
 
-/* ops for VMA open, close and fault. See Linux Device Drivers, 3rd ed, p427. */
+/* see linux/include/linux/mm.h - this struct has changed since LDD3 p.427 */
 static struct vm_operations_struct vm_ops = {
-  .nopage = fault, /* page fault handler */
+  // .open = kex_open,
+  // .close = kex_close,
+  .fault = kex_fault,
 };
 
 int _mmap(struct file *f, struct vm_area_struct *vma) {
@@ -40,13 +54,11 @@ int _mmap(struct file *f, struct vm_area_struct *vma) {
   printk(KERN_DEBUG "vma->vm_end %lu vm_start %lu len %lu pages %lu vm_pgoff %lu\n",
     vma->vm_end, vma->vm_start, vma->vm_end - vma->vm_start, pages, vma->vm_pgoff);
 
-  if (0) goto done;
   vma->vm_ops = &vm_ops;
-  vma->vm_private_data = (void*)0xa1fa1fa; /* could store private data here */
+  vma->vm_private_data = (void*)0xa1fa1fa; /* can store private data here */
   
   rc = 0;
 
- done:
   return rc;
 }
 

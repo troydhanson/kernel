@@ -14,8 +14,6 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 #define NUM_MINORS 1
 
-DEFINE_MUTEX(mutex);
-
 /* a global to keep state. must be thread safe. */
 struct chardev_t {
   dev_t dev;        /* has major and minor bits */
