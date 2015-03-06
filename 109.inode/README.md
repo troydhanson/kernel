@@ -16,21 +16,21 @@ a "key" to tell whether two processes opened the same device node.
 1075684 dev   
 ```
 
-We used ls -i to see the inode number of our device node above. Use cat 
-to open the device. Ignore the read failure. 
+We used ls -i to see the inode number of our device node above. We open
+the device, without writing any bytes to it, to provoke its log message:
 
 ```
-    % cat dev
-cat: dev: Invalid argument
+    % cat /dev/null > dev
     % dmesg
 [38890.769944] open(): inode 1075684 on dev (8,1)
 ```
 
 Notice our driver's log message includes the inode number of our device.
 It matches the one we expected. The log also says the device node inode 
-resides on device (8,1). We can compare that with the major and minor
-of the device hosting the current directory:
+resides on device (8,1). We can see that the current directory in which
+the device node resides is on /dev/sda1 which is device (8,1) as shown:
 
+```
     % df .
 /dev/sda1       19478204 9067468   9398256  50% /
     % ls -l /dev/sda1
