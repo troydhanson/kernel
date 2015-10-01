@@ -10,10 +10,12 @@ TODO
 * udev device instantiation
 * GPL_EXPORT_SYMBOLS, /proc/kallsyms
 * ops: poll, mmap
-* kernel linked list, kfifo
+* kernel kfifo
 * pci, usb
 * kgdb
 * initramfs
 * kvm
 * net nic
 * waitqueues
+* memory barrier
+* sysfs
