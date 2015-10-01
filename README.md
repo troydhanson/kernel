@@ -4,7 +4,7 @@ Each version of the module shows how to use a different feature of the kernel.
 TODO
 
 * IRQ's
-* timers, jiffies, HZ
+* timers
 * remap_pfn_range
 * get_user_pages
 * udev device instantiation
